@@ -1,0 +1,57 @@
+.nav-container {
+  width: 250px;
+  height: 100vh;
+  background-color: #f8f9fa;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 32px 20px;
+}
+
+.nav-title {
+  font-size: 28px;
+  margin-bottom: 40px;
+  font-weight: 500;
+  padding-left: 12px;
+}
+
+.nav-title span {
+  color: #202124; /* 'Eye tracking' 텍스트 색상 */
+}
+
+.nav-title .dot {
+  color: #94c2f3; /* 파스텔 블루로 점(.) 색상 변경 */
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 0;
+}
+
+.nav-item {
+  padding: 16px 20px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 16px;
+  color: #5f6368;
+  transition: all 0.2s ease;
+  font-size: 16px;
+}
+
+.nav-item a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  width: 100%;
+}
+
+.nav-item:hover {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+}
+
+.nav-item.active {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  font-weight: 500;
+}
