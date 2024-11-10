@@ -1,5 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { toggleUserSelection, matchLogRequest } from '../../store/slices/collectionSlice';
 
 const UserListContainer = styled.div`
   display: flex;
@@ -92,7 +94,7 @@ const LogPath = styled.div`
   }
 `;
 
-const UserList = ({ users, selectedUsers, onSelect, onMatchLog }) => {
+const UserList = ({ users, selectedUsers, toggleUserSelection, matchLogRequest }) => {
   const handleMatchLog = (user, e) => {
     e.stopPropagation();
     const input = document.createElement('input');
@@ -101,7 +103,7 @@ const UserList = ({ users, selectedUsers, onSelect, onMatchLog }) => {
     input.onchange = (event) => {
       if (event.target.files.length > 0) {
         const file = event.target.files[0];
-        onMatchLog(user.id, file.path || file.name);
+        matchLogRequest({ userId: user.id, logPath: file.path || file.name });
       }
     };
     input.click();
@@ -113,7 +115,7 @@ const UserList = ({ users, selectedUsers, onSelect, onMatchLog }) => {
         <UserCard
           key={user.id}
           selected={selectedUsers.some(u => u.id === user.id)}
-          onClick={() => onSelect(user)}
+          onClick={() => toggleUserSelection(user)}
         >
           <UserHeader>
             <Avatar>
@@ -145,4 +147,12 @@ const UserList = ({ users, selectedUsers, onSelect, onMatchLog }) => {
   );
 };
 
-export default UserList; 
+const mapStateToProps = (state) => ({
+  users: state.collection.users,
+  selectedUsers: state.collection.selectedUsers
+});
+
+export default connect(mapStateToProps, {
+  toggleUserSelection,
+  matchLogRequest
+})(UserList); 

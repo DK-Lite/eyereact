@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { setPath } from '../../store/slices/uploadSlice';
 
 const Container = styled.div`
   margin-bottom: 12px;
@@ -58,19 +60,14 @@ const Button = styled.button`
   }
 `;
 
-const PathSelector = ({ onPathSelect }) => {
-  const [path, setPath] = useState('');
-
+const PathSelector = ({ path, setPath }) => {
   const handleBrowse = () => {
-    // 실제 구현시에는 electron의 dialog API를 사용하거나
-    // 웹에서는 input type="file" directory webkitdirectory를 사용
     const input = document.createElement('input');
     input.type = 'file';
     input.webkitdirectory = true;
     input.onchange = (e) => {
       const path = e.target.files[0].path.split('\\').slice(0, -1).join('\\');
       setPath(path);
-      onPathSelect(path);
     };
     input.click();
   };
@@ -80,10 +77,7 @@ const PathSelector = ({ onPathSelect }) => {
       <PathInput>
         <Input
           value={path}
-          onChange={(e) => {
-            setPath(e.target.value);
-            onPathSelect(e.target.value);
-          }}
+          onChange={(e) => setPath(e.target.value)}
           placeholder="Enter or select data path"
         />
         <Button onClick={handleBrowse}>
@@ -95,4 +89,10 @@ const PathSelector = ({ onPathSelect }) => {
   );
 };
 
-export default PathSelector; 
+const mapStateToProps = (state) => ({
+  path: state.upload.path
+});
+
+export default connect(mapStateToProps, {
+  setPath
+})(PathSelector); 

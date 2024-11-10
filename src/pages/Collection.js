@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PageTitle from '../components/common/PageTitle';
 import DeviceList from '../components/collection/DeviceList';
@@ -6,6 +7,18 @@ import UserList from '../components/collection/UserList';
 import CreateDeviceModal from '../components/collection/CreateDeviceModal';
 import CreateUserModal from '../components/collection/CreateUserModal';
 import AnalysisModal from '../components/collection/AnalysisModal';
+import {
+  setSelectedDevice,
+  toggleUserSelection,
+  setCreateDeviceModalOpen,
+  setCreateUserModalOpen,
+  setAnalysisModalOpen,
+} from '../store/slices/collectionSlice';
+import {
+  createDeviceRequest,
+  createUserRequest,
+  matchLogRequest,
+} from '../store/sagas/collectionSaga';
 
 const CollectionContainer = styled.div`
   display: flex;
@@ -106,43 +119,38 @@ const SelectedCount = styled.div`
 `;
 
 function Collection() {
-  const [devices, setDevices] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [selectedDevice, setSelectedDevice] = useState(null);
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [isCreateDeviceModalOpen, setIsCreateDeviceModalOpen] = useState(false);
-  const [isCreateUserModalOpen, setIsCreateUserModalOpen] = useState(false);
-  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const dispatch = useDispatch();
+  const {
+    devices,
+    users,
+    selectedDevice,
+    selectedUsers,
+    isCreateDeviceModalOpen,
+    isCreateUserModalOpen,
+    isAnalysisModalOpen,
+  } = useSelector(state => state.collection);
 
   const handleCreateDevice = (newDevice) => {
-    setDevices([...devices, newDevice]);
+    dispatch(createDeviceRequest(newDevice));
   };
 
   const handleCreateUser = (newUser) => {
-    setUsers([...users, { ...newUser, id: Date.now().toString() }]);
+    dispatch(createUserRequest(newUser));
   };
 
   const handleUserSelect = (user) => {
-    if (selectedUsers.find(u => u.id === user.id)) {
-      setSelectedUsers(selectedUsers.filter(u => u.id !== user.id));
-    } else {
-      setSelectedUsers([...selectedUsers, user]);
-    }
+    dispatch(toggleUserSelection(user));
   };
 
   const handleAnalyze = () => {
-    setIsAnalysisModalOpen(true);
+    dispatch(setAnalysisModalOpen(true));
+  };
+
+  const handleMatchLog = (userId, logPath) => {
+    dispatch(matchLogRequest({ userId, logPath }));
   };
 
   const canAnalyze = selectedDevice && selectedUsers.length > 0;
-
-  const handleMatchLog = (userId, logPath) => {
-    setUsers(users.map(user => 
-      user.id === userId 
-        ? { ...user, logPath } 
-        : user
-    ));
-  };
 
   return (
     <div className="page-container">
@@ -151,7 +159,7 @@ function Collection() {
         <Section>
           <SectionHeader>
             <Title>Devices</Title>
-            <CreateButton onClick={() => setIsCreateDeviceModalOpen(true)}>
+            <CreateButton onClick={() => dispatch(setCreateDeviceModalOpen(true))}>
               <span className="material-icons">add</span>
               Create Device
             </CreateButton>
@@ -159,14 +167,14 @@ function Collection() {
           <DeviceList
             devices={devices}
             selectedDevice={selectedDevice}
-            onSelect={setSelectedDevice}
+            onSelect={(device) => dispatch(setSelectedDevice(device))}
           />
         </Section>
 
         <Section>
           <SectionHeader>
             <Title>Users</Title>
-            <CreateButton onClick={() => setIsCreateUserModalOpen(true)}>
+            <CreateButton onClick={() => dispatch(setCreateUserModalOpen(true))}>
               <span className="material-icons">person_add</span>
               Create User
             </CreateButton>
@@ -190,19 +198,19 @@ function Collection() {
 
       <CreateDeviceModal
         isOpen={isCreateDeviceModalOpen}
-        onClose={() => setIsCreateDeviceModalOpen(false)}
+        onClose={() => dispatch(setCreateDeviceModalOpen(false))}
         onCreate={handleCreateDevice}
       />
       
       <CreateUserModal
         isOpen={isCreateUserModalOpen}
-        onClose={() => setIsCreateUserModalOpen(false)}
+        onClose={() => dispatch(setCreateUserModalOpen(false))}
         onCreate={handleCreateUser}
       />
 
       <AnalysisModal
         isOpen={isAnalysisModalOpen}
-        onClose={() => setIsAnalysisModalOpen(false)}
+        onClose={() => dispatch(setAnalysisModalOpen(false))}
         data={{
           device: selectedDevice,
           users: selectedUsers,

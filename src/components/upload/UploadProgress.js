@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 import PathSelector from './PathSelector';
 import MemoModal from './MemoModal';
+import { startUpload } from '../../store/sagas/uploadSaga';
+import { 
+  setMemo, 
+  setMemoModalOpen 
+} from '../../store/slices/uploadSlice';
 
 const float = keyframes`
   0% {
@@ -132,48 +138,18 @@ const MemoPreview = styled.div`
   }
 `;
 
-const UploadProgress = () => {
-  const [path, setPath] = useState('');
-  const [isStarted, setIsStarted] = useState(false);
-  const [currentStep, setCurrentStep] = useState(-1);
-  const [completedSteps, setCompletedSteps] = useState([]);
-  const [steps, setSteps] = useState([
-    { 
-      icon: 'folder_open',
-      title: 'Gather',
-      description: 'Start collecting data.',
-      processingText: 'Collecting data...',
-      completedText: 'Data collection completed.',
-      duration: 3
-    },
-    {
-      icon: 'image',
-      title: 'Transcoding JPG',
-      description: 'Start JPG conversion.',
-      processingText: 'Converting to JPG... (0/100)',
-      completedText: 'JPG conversion completed.',
-      duration: 5
-    },
-    {
-      icon: 'movie',
-      title: 'Transcoding AVI',
-      description: 'Start AVI conversion.',
-      processingText: 'Converting to AVI... (0/100)',
-      completedText: 'AVI conversion completed.',
-      duration: 4
-    },
-    {
-      icon: 'cloud_upload',
-      title: 'Minio Upload',
-      description: 'Start uploading.',
-      processingText: 'Uploading to Minio server... (0/100)',
-      completedText: 'Upload completed.',
-      duration: 3
-    }
-  ]);
-  const [isMemoModalOpen, setIsMemoModalOpen] = useState(false);
-  const [memo, setMemo] = useState('');
-
+const UploadProgress = ({ 
+  path,
+  memo,
+  isStarted,
+  currentStep,
+  completedSteps,
+  isMemoModalOpen,
+  steps,
+  startUpload,
+  setMemo,
+  setMemoModalOpen
+}) => {
   const getStepDescription = (step, index) => {
     if (completedSteps.includes(index)) {
       return `${step.completedText || step.description}`;
@@ -184,45 +160,17 @@ const UploadProgress = () => {
     return step.description;
   };
 
-  const startUpload = () => {
+  const handleStartUpload = () => {
     if (!path) {
       alert('Please select a data path.');
       return;
     }
-    setIsStarted(true);
-    processSteps();
-  };
-
-  const processSteps = async () => {
-    for (let i = 0; i < steps.length; i++) {
-      setCurrentStep(i);
-      const startTime = Date.now();
-      
-      const updateInterval = setInterval(() => {
-        const progress = Math.floor((Date.now() - startTime) / (steps[i].duration * 10));
-        if (progress <= 100) {
-          setSteps(prevSteps => {
-            const newSteps = [...prevSteps];
-            newSteps[i] = {
-              ...newSteps[i],
-              processingText: `${newSteps[i].title} in progress... (${progress}/100)`
-            };
-            return newSteps;
-          });
-        }
-      }, 100);
-
-      await new Promise(resolve => setTimeout(resolve, steps[i].duration * 1000));
-      clearInterval(updateInterval);
-      
-      setCompletedSteps(prev => [...prev, i]);
-    }
-    setCurrentStep(-1);
+    startUpload();
   };
 
   return (
     <>
-      <PathSelector onPathSelect={setPath} />
+      <PathSelector />
       {memo && (
         <MemoPreview>
           <h3>
@@ -233,12 +181,12 @@ const UploadProgress = () => {
         </MemoPreview>
       )}
       <ButtonGroup>
-        <MemoButton onClick={() => setIsMemoModalOpen(true)}>
+        <MemoButton onClick={() => setMemoModalOpen(true)}>
           <span className="material-icons">edit_note</span>
           {memo ? 'Edit Memo' : 'Add Memo'}
         </MemoButton>
         <StartButton 
-          onClick={startUpload} 
+          onClick={handleStartUpload} 
           disabled={isStarted || !path}
         >
           <span className="material-icons">play_circle_outline</span>
@@ -269,12 +217,26 @@ const UploadProgress = () => {
 
       <MemoModal
         isOpen={isMemoModalOpen}
-        onClose={() => setIsMemoModalOpen(false)}
-        onSave={setMemo}
+        onClose={() => setMemoModalOpen(false)}
+        onSave={(memo) => setMemo(memo)}
         initialMemo={memo}
       />
     </>
   );
 };
 
-export default UploadProgress; 
+const mapStateToProps = (state) => ({
+  path: state.upload.path,
+  memo: state.upload.memo,
+  isStarted: state.upload.isStarted,
+  currentStep: state.upload.currentStep,
+  completedSteps: state.upload.completedSteps,
+  isMemoModalOpen: state.upload.isMemoModalOpen,
+  steps: state.upload.steps
+});
+
+export default connect(mapStateToProps, {
+  startUpload,
+  setMemo,
+  setMemoModalOpen
+})(UploadProgress); 

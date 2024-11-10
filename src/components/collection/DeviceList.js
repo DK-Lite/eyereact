@@ -1,5 +1,7 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import styled from 'styled-components';
+import { setSelectedDevice } from '../../store/slices/collectionSlice';
 
 const ListContainer = styled.div`
   display: flex;
@@ -81,12 +83,12 @@ const EmptyState = styled.div`
   }
 `;
 
-const DeviceList = ({ devices, selectedDevice, onSelect }) => {
+const DeviceList = ({ devices, selectedDevice, setSelectedDevice }) => {
   const handleDeviceSelect = (device) => {
     if (selectedDevice?.id === device.id) {
-      onSelect(null);
+      setSelectedDevice(null);
     } else {
-      onSelect(device);
+      setSelectedDevice(device);
     }
   };
 
@@ -128,4 +130,11 @@ const DeviceList = ({ devices, selectedDevice, onSelect }) => {
   );
 };
 
-export default DeviceList; 
+const mapStateToProps = (state) => ({
+  devices: state.collection.devices,
+  selectedDevice: state.collection.selectedDevice
+});
+
+export default connect(mapStateToProps, {
+  setSelectedDevice
+})(DeviceList); 
