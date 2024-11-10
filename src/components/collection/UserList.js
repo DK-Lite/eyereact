@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import styled from 'styled-components';
-import { toggleUserSelection, matchLogRequest } from '../../store/slices/collectionSlice';
+import { toggleUserSelection } from '../../store/slices/collectionSlice';
+import { matchLogRequest } from '../../store/sagas/collectionSaga';
 
 const UserListContainer = styled.div`
   display: flex;

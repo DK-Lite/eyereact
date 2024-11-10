@@ -11,6 +11,8 @@ const NavContainer = styled.div`
   left: 0;
   top: 0;
   padding: 32px 20px;
+  box-shadow: 4px 0 8px rgba(0, 0, 0, 0.05);
+  transform: translateY(-8px);
 `;
 
 const NavTitle = styled.div`
@@ -34,23 +36,21 @@ const TitleDot = styled.span`
 const NavMenu = styled.ul`
   list-style: none;
   padding: 0;
+  background: transparent;
 `;
 
 const NavItem = styled.li`
   padding: 16px 20px;
-  margin-bottom: 8px;
   cursor: pointer;
-  border-radius: 16px;
-  color: #5f6368;
-  transition: all 0.2s ease;
-  font-size: 16px;
-  background-color: ${props => props.active ? '#e8f0fe' : 'transparent'};
   color: ${props => props.active ? '#1a73e8' : '#5f6368'};
   font-weight: ${props => props.active ? '500' : '400'};
+  font-size: 16px;
+  transition: all 0.2s ease;
+  opacity: ${props => props.active ? 1 : 0.7};
 
   &:hover {
-    background-color: #e8f0fe;
     color: #1a73e8;
+    opacity: 1;
   }
 `;
 

@@ -4,6 +4,7 @@ import { all } from 'redux-saga/effects';
 import navigationReducer from './slices/navigationSlice';
 import collectionReducer from './slices/collectionSlice';
 import uploadReducer from './slices/uploadSlice';
+import testingReducer from './slices/testingSlice';
 import { collectionSaga } from './sagas/collectionSaga';
 import { uploadSaga } from './sagas/uploadSaga';
 
@@ -21,6 +22,7 @@ export const store = configureStore({
     navigation: navigationReducer,
     collection: collectionReducer,
     upload: uploadReducer,
+    testing: testingReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(sagaMiddleware),

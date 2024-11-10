@@ -1,5 +1,12 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 import { createAction } from '@reduxjs/toolkit';
+import {
+  addDevice,
+  addUser,
+  updateUserLogPath,
+  setCreateDeviceModalOpen,
+  setCreateUserModalOpen
+} from '../slices/collectionSlice';
 
 // Action Types
 export const CREATE_DEVICE_REQUEST = 'collection/createDeviceRequest';

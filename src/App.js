@@ -17,7 +17,6 @@ const MainContent = styled.div`
   margin-left: 250px;
   padding: 40px;
   background-color: #ffffff;
-  border-radius: 24px 0 0 24px;
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.05);
   min-height: 100vh;
   box-sizing: border-box;
