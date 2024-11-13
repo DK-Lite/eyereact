@@ -17,8 +17,18 @@ const collectionSlice = createSlice({
     addDevice: (state, action) => {
       state.devices.push(action.payload);
     },
+    removeDevice: (state, action) => {
+      state.devices = state.devices.filter(device => device.id !== action.payload);
+      if (state.selectedDevice?.id === action.payload) {
+        state.selectedDevice = null;
+      }
+    },
     addUser: (state, action) => {
       state.users.push(action.payload);
+    },
+    removeUser: (state, action) => {
+      state.users = state.users.filter(user => user.id !== action.payload);
+      state.selectedUsers = state.selectedUsers.filter(user => user.id !== action.payload);
     },
     setSelectedDevice: (state, action) => {
       state.selectedDevice = action.payload;
@@ -53,7 +63,9 @@ const collectionSlice = createSlice({
 
 export const {
   addDevice,
+  removeDevice,
   addUser,
+  removeUser,
   setSelectedDevice,
   toggleUserSelection,
   updateUserLogPath,

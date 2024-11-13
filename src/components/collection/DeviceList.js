@@ -9,6 +9,30 @@ const ListContainer = styled.div`
   gap: 12px;
 `;
 
+const DeleteButton = styled.button`
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  opacity: 0;
+
+  &:hover {
+    background: #fee4e2;
+    color: #d92d20;
+  }
+
+  .material-icons {
+    font-size: 20px;
+  }
+`;
+
 const DeviceCard = styled.div`
   background: ${props => props.selected ? '#e8f0fe' : 'white'};
   border: 2px solid ${props => props.selected ? '#1a73e8' : '#f1f3f4'};
@@ -20,6 +44,10 @@ const DeviceCard = styled.div`
   &:hover {
     border-color: #1a73e8;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+    ${DeleteButton} {
+      opacity: 1;
+    }
   }
 `;
 
@@ -83,13 +111,18 @@ const EmptyState = styled.div`
   }
 `;
 
-const DeviceList = ({ devices, selectedDevice, setSelectedDevice }) => {
+const DeviceList = ({ devices, selectedDevice, setSelectedDevice, onDelete }) => {
   const handleDeviceSelect = (device) => {
     if (selectedDevice?.id === device.id) {
       setSelectedDevice(null);
     } else {
       setSelectedDevice(device);
     }
+  };
+
+  const handleDelete = (e, deviceId) => {
+    e.stopPropagation();
+    onDelete(deviceId);
   };
 
   if (devices.length === 0) {
@@ -123,6 +156,9 @@ const DeviceList = ({ devices, selectedDevice, setSelectedDevice }) => {
               </span>
               {device.connected ? 'Connected' : 'Disconnected'}
             </DeviceStatus>
+            <DeleteButton onClick={(e) => handleDelete(e, device.id)}>
+              <span className="material-icons">delete</span>
+            </DeleteButton>
           </DeviceHeader>
         </DeviceCard>
       ))}

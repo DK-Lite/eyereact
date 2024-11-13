@@ -100,10 +100,85 @@ const Button = styled.button`
   }
 `;
 
+const Select = styled.select`
+  padding: 12px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+  padding-right: 40px;
+  color: #202124;
+
+  &:focus {
+    border-color: #1a73e8;
+  }
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  option {
+    padding: 12px;
+  }
+`;
+
+const RadioGroup = styled.div`
+  display: flex;
+  gap: 24px;
+  padding: 4px;
+`;
+
+const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #5f6368;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+
+  input {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dadce0;
+    border-radius: 50%;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+
+    &:checked {
+      border-color: #1a73e8;
+      border-width: 5px;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+  }
+`;
+
 const CreateUserModal = ({ isOpen, onClose, onCreate }) => {
   const [userName, setUserName] = useState('');
   const [userAge, setUserAge] = useState('');
-  const [userGender, setUserGender] = useState('');
+  const [userGender, setUserGender] = useState('male');
+  const [userType, setUserType] = useState('participant');
+  const [visualAcuity, setVisualAcuity] = useState('normal');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -111,11 +186,13 @@ const CreateUserModal = ({ isOpen, onClose, onCreate }) => {
       name: userName,
       age: userAge,
       gender: userGender,
+      type: userType,
+      visualAcuity,
     });
     onClose();
   };
 
-  const isFormValid = userName && userAge && userGender;
+  const isFormValid = userName && userAge && userGender && userType && visualAcuity;
 
   return (
     <AnimatePresence>
@@ -153,12 +230,62 @@ const CreateUserModal = ({ isOpen, onClose, onCreate }) => {
               </FormGroup>
               <FormGroup>
                 <Label>Gender *</Label>
-                <Input
-                  value={userGender}
-                  onChange={(e) => setUserGender(e.target.value)}
-                  placeholder="Enter user gender"
+                <RadioGroup>
+                  <RadioLabel>
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="male"
+                      checked={userGender === 'male'}
+                      onChange={(e) => setUserGender(e.target.value)}
+                    />
+                    Male
+                  </RadioLabel>
+                  <RadioLabel>
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="female"
+                      checked={userGender === 'female'}
+                      onChange={(e) => setUserGender(e.target.value)}
+                    />
+                    Female
+                  </RadioLabel>
+                  <RadioLabel>
+                    <input
+                      type="radio"
+                      name="gender"
+                      value="other"
+                      checked={userGender === 'other'}
+                      onChange={(e) => setUserGender(e.target.value)}
+                    />
+                    Other
+                  </RadioLabel>
+                </RadioGroup>
+              </FormGroup>
+              <FormGroup>
+                <Label>User Type *</Label>
+                <Select
+                  value={userType}
+                  onChange={(e) => setUserType(e.target.value)}
                   required
-                />
+                >
+                  <option value="participant">Participant</option>
+                  <option value="researcher">Researcher</option>
+                  <option value="administrator">Administrator</option>
+                </Select>
+              </FormGroup>
+              <FormGroup>
+                <Label>Visual Acuity *</Label>
+                <Select
+                  value={visualAcuity}
+                  onChange={(e) => setVisualAcuity(e.target.value)}
+                  required
+                >
+                  <option value="normal">Normal</option>
+                  <option value="corrected">Corrected to Normal</option>
+                  <option value="impaired">Visually Impaired</option>
+                </Select>
               </FormGroup>
               <ButtonGroup>
                 <Button type="button" className="cancel" onClick={onClose}>

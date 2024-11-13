@@ -15,21 +15,44 @@ function* handleStartUpload() {
     const { steps } = yield select(state => state.upload);
     yield put(setIsStarted(true));
 
-    for (let i = 0; i < steps.length; i++) {
-      yield put(setCurrentStep(i));
-      const startTime = Date.now();
-      const duration = steps[i].duration * 1000;
+    // Gather 단계
+    yield put(setCurrentStep(0));
+    yield put(updateStepProgress({ index: 0, progress: "데이터 수집 중..." }));
+    yield delay(2000);
+    yield put(addCompletedStep(0));
 
-      while (Date.now() - startTime < duration) {
-        const progress = Math.floor((Date.now() - startTime) / (duration / 100));
-        if (progress <= 100) {
-          yield put(updateStepProgress({ index: i, progress }));
-        }
-        yield delay(100);
-      }
-
-      yield put(addCompletedStep(i));
+    // JPG 변환 단계
+    yield put(setCurrentStep(1));
+    for (let i = 0; i <= 100; i += 10) {
+      yield put(updateStepProgress({ 
+        index: 1, 
+        progress: `JPG 변환 중... (${i}%)` 
+      }));
+      yield delay(200);
     }
+    yield put(addCompletedStep(1));
+
+    // AVI 변환 단계
+    yield put(setCurrentStep(2));
+    for (let i = 0; i <= 100; i += 10) {
+      yield put(updateStepProgress({ 
+        index: 2, 
+        progress: `AVI 변환 중... (${i}%)` 
+      }));
+      yield delay(200);
+    }
+    yield put(addCompletedStep(2));
+
+    // Minio 업로드 단계
+    yield put(setCurrentStep(3));
+    for (let i = 0; i <= 100; i += 10) {
+      yield put(updateStepProgress({ 
+        index: 3, 
+        progress: `Minio 서버에 업로드 중... (${i}%)` 
+      }));
+      yield delay(200);
+    }
+    yield put(addCompletedStep(3));
 
     yield put(setCurrentStep(-1));
   } catch (error) {

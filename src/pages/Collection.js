@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import PageTitle from '../components/common/PageTitle';
@@ -13,6 +13,8 @@ import {
   setCreateDeviceModalOpen,
   setCreateUserModalOpen,
   setAnalysisModalOpen,
+  removeDevice,
+  removeUser,
 } from '../store/slices/collectionSlice';
 import {
   createDeviceRequest,
@@ -40,10 +42,85 @@ const SectionHeader = styled.div`
   margin-bottom: 16px;
 `;
 
+const HeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
 const Title = styled.h2`
   font-size: 18px;
   color: #202124;
   font-weight: 500;
+`;
+
+const SyncButton = styled.button`
+  padding: 4px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  color: #5f6368;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f1f8ff;
+    color: #1a73e8;
+  }
+
+  .material-icons {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+    transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+  }
+`;
+
+const HeaderActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SyncMenu = styled.div`
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 8px 0;
+  z-index: 10;
+  min-width: 180px;
+`;
+
+const MenuItem = styled.button`
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  color: #202124;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background: #f1f8ff;
+  }
+
+  .material-icons {
+    font-size: 18px;
+    color: #5f6368;
+  }
+`;
+
+const SyncMenuContainer = styled.div`
+  position: relative;
 `;
 
 const CreateButton = styled.button`
@@ -130,6 +207,27 @@ function Collection() {
     isAnalysisModalOpen,
   } = useSelector(state => state.collection);
 
+  const [deviceSyncMenuOpen, setDeviceSyncMenuOpen] = useState(false);
+  const [userSyncMenuOpen, setUserSyncMenuOpen] = useState(false);
+  const deviceMenuRef = useRef(null);
+  const userMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (deviceMenuRef.current && !deviceMenuRef.current.contains(event.target)) {
+        setDeviceSyncMenuOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserSyncMenuOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleCreateDevice = (newDevice) => {
     dispatch(createDeviceRequest(newDevice));
   };
@@ -150,6 +248,26 @@ function Collection() {
     dispatch(matchLogRequest({ userId, logPath }));
   };
 
+  const handleDeleteDevice = (deviceId) => {
+    dispatch(removeDevice(deviceId));
+  };
+
+  const handleDeleteUser = (userId) => {
+    dispatch(removeUser(userId));
+  };
+
+  const handleSyncDevices = (source) => {
+    // TODO: Implement sync logic
+    console.log(`Syncing devices from ${source}`);
+    setDeviceSyncMenuOpen(false);
+  };
+
+  const handleSyncUsers = (source) => {
+    // TODO: Implement sync logic
+    console.log(`Syncing users from ${source}`);
+    setUserSyncMenuOpen(false);
+  };
+
   const canAnalyze = selectedDevice && selectedUsers.length > 0;
 
   return (
@@ -158,7 +276,29 @@ function Collection() {
       <CollectionContainer>
         <Section>
           <SectionHeader>
-            <Title>Devices</Title>
+            <HeaderLeft>
+              <Title>Devices</Title>
+              <SyncMenuContainer ref={deviceMenuRef}>
+                <SyncButton 
+                  onClick={() => setDeviceSyncMenuOpen(!deviceSyncMenuOpen)}
+                  isOpen={deviceSyncMenuOpen}
+                >
+                  <span className="material-icons">settings</span>
+                </SyncButton>
+                {deviceSyncMenuOpen && (
+                  <SyncMenu>
+                    <MenuItem onClick={() => handleSyncDevices('local')}>
+                      <span className="material-icons">upload_file</span>
+                      Import from File
+                    </MenuItem>
+                    <MenuItem onClick={() => handleSyncDevices('repo')}>
+                      <span className="material-icons">cloud_sync</span>
+                      Sync with Server
+                    </MenuItem>
+                  </SyncMenu>
+                )}
+              </SyncMenuContainer>
+            </HeaderLeft>
             <CreateButton onClick={() => dispatch(setCreateDeviceModalOpen(true))}>
               <span className="material-icons">add</span>
               Create Device
@@ -168,12 +308,35 @@ function Collection() {
             devices={devices}
             selectedDevice={selectedDevice}
             onSelect={(device) => dispatch(setSelectedDevice(device))}
+            onDelete={handleDeleteDevice}
           />
         </Section>
 
         <Section>
           <SectionHeader>
-            <Title>Users</Title>
+            <HeaderLeft>
+              <Title>Users</Title>
+              <SyncMenuContainer ref={userMenuRef}>
+                <SyncButton 
+                  onClick={() => setUserSyncMenuOpen(!userSyncMenuOpen)}
+                  isOpen={userSyncMenuOpen}
+                >
+                  <span className="material-icons">settings</span>
+                </SyncButton>
+                {userSyncMenuOpen && (
+                  <SyncMenu>
+                    <MenuItem onClick={() => handleSyncUsers('local')}>
+                      <span className="material-icons">upload_file</span>
+                      Import from File
+                    </MenuItem>
+                    <MenuItem onClick={() => handleSyncUsers('repo')}>
+                      <span className="material-icons">cloud_sync</span>
+                      Sync with Server
+                    </MenuItem>
+                  </SyncMenu>
+                )}
+              </SyncMenuContainer>
+            </HeaderLeft>
             <CreateButton onClick={() => dispatch(setCreateUserModalOpen(true))}>
               <span className="material-icons">person_add</span>
               Create User
@@ -184,6 +347,7 @@ function Collection() {
             selectedUsers={selectedUsers}
             onSelect={handleUserSelect}
             onMatchLog={handleMatchLog}
+            onDelete={handleDeleteUser}
           />
         </Section>
       </CollectionContainer>

@@ -10,6 +10,30 @@ const UserListContainer = styled.div`
   gap: 16px;
 `;
 
+const DeleteButton = styled.button`
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+  opacity: 0;
+
+  &:hover {
+    background: #fee4e2;
+    color: #d92d20;
+  }
+
+  .material-icons {
+    font-size: 20px;
+  }
+`;
+
 const UserCard = styled.div`
   background: ${props => props.selected ? '#e8f0fe' : 'white'};
   border: 2px solid ${props => props.selected ? '#1a73e8' : '#f1f3f4'};
@@ -21,6 +45,10 @@ const UserCard = styled.div`
   &:hover {
     border-color: #1a73e8;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+    ${DeleteButton} {
+      opacity: 1;
+    }
   }
 `;
 
@@ -95,7 +123,7 @@ const LogPath = styled.div`
   }
 `;
 
-const UserList = ({ users, selectedUsers, toggleUserSelection, matchLogRequest }) => {
+const UserList = ({ users, selectedUsers, toggleUserSelection, matchLogRequest, onDelete }) => {
   const handleMatchLog = (user, e) => {
     e.stopPropagation();
     const input = document.createElement('input');
@@ -108,6 +136,11 @@ const UserList = ({ users, selectedUsers, toggleUserSelection, matchLogRequest }
       }
     };
     input.click();
+  };
+
+  const handleDelete = (e, userId) => {
+    e.stopPropagation();
+    onDelete(userId);
   };
 
   return (
@@ -135,6 +168,9 @@ const UserList = ({ users, selectedUsers, toggleUserSelection, matchLogRequest }
               </span>
               {user.logPath ? 'Matched' : 'Match Log'}
             </MatchButton>
+            <DeleteButton onClick={(e) => handleDelete(e, user.id)}>
+              <span className="material-icons">delete</span>
+            </DeleteButton>
           </UserHeader>
           {user.logPath && (
             <LogPath>

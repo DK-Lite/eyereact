@@ -100,9 +100,84 @@ const Button = styled.button`
   }
 `;
 
+const Select = styled.select`
+  padding: 12px 16px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%235f6368'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 24px;
+  padding-right: 40px;
+  color: #202124;
+
+  &:focus {
+    border-color: #1a73e8;
+  }
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+
+  option {
+    padding: 12px;
+  }
+`;
+
+const RadioGroup = styled.div`
+  display: flex;
+  gap: 24px;
+  padding: 4px;
+`;
+
+const RadioLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #5f6368;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f8f9fa;
+  }
+
+  input {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #dadce0;
+    border-radius: 50%;
+    margin: 0;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+
+    &:checked {
+      border-color: #1a73e8;
+      border-width: 5px;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+  }
+`;
+
 const CreateDeviceModal = ({ isOpen, onClose, onCreate }) => {
   const [deviceName, setDeviceName] = useState('');
   const [deviceId, setDeviceId] = useState('');
+  const [deviceType, setDeviceType] = useState('eyetracker');
+  const [connectionType, setConnectionType] = useState('usb');
   const [description, setDescription] = useState('');
 
   const handleSubmit = (e) => {
@@ -110,13 +185,15 @@ const CreateDeviceModal = ({ isOpen, onClose, onCreate }) => {
     onCreate({
       id: deviceId,
       name: deviceName,
+      type: deviceType,
+      connectionType,
       description,
       connected: false,
     });
     onClose();
   };
 
-  const isFormValid = deviceName && deviceId;
+  const isFormValid = deviceName && deviceId && deviceType && connectionType;
 
   return (
     <AnimatePresence>
@@ -150,6 +227,53 @@ const CreateDeviceModal = ({ isOpen, onClose, onCreate }) => {
                   placeholder="Enter device ID"
                   required
                 />
+              </FormGroup>
+              <FormGroup>
+                <Label>Device Type *</Label>
+                <Select
+                  value={deviceType}
+                  onChange={(e) => setDeviceType(e.target.value)}
+                  required
+                >
+                  <option value="eyetracker">Eye Tracker</option>
+                  <option value="camera">Camera</option>
+                  <option value="sensor">Sensor</option>
+                </Select>
+              </FormGroup>
+              <FormGroup>
+                <Label>Connection Type *</Label>
+                <RadioGroup>
+                  <RadioLabel>
+                    <input
+                      type="radio"
+                      name="connectionType"
+                      value="usb"
+                      checked={connectionType === 'usb'}
+                      onChange={(e) => setConnectionType(e.target.value)}
+                    />
+                    USB
+                  </RadioLabel>
+                  <RadioLabel>
+                    <input
+                      type="radio"
+                      name="connectionType"
+                      value="bluetooth"
+                      checked={connectionType === 'bluetooth'}
+                      onChange={(e) => setConnectionType(e.target.value)}
+                    />
+                    Bluetooth
+                  </RadioLabel>
+                  <RadioLabel>
+                    <input
+                      type="radio"
+                      name="connectionType"
+                      value="wifi"
+                      checked={connectionType === 'wifi'}
+                      onChange={(e) => setConnectionType(e.target.value)}
+                    />
+                    Wi-Fi
+                  </RadioLabel>
+                </RadioGroup>
               </FormGroup>
               <FormGroup>
                 <Label>Description (Optional)</Label>
